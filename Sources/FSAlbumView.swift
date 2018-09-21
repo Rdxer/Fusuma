@@ -114,13 +114,29 @@ final class FSAlbumView: UIView, UICollectionViewDataSource, UICollectionViewDel
         
         if images.count > 0 {
             
-            changeImage(images[0])
+            changeImage(images[0], setSelect: false)
             collectionView.reloadData()
-            collectionView.selectItem(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: UICollectionViewScrollPosition())
+//            collectionView.selectItem(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: UICollectionViewScrollPosition())
+            
         }
         
         PHPhotoLibrary.shared().register(self)
+    }
+    
+    func refreshSelect(assets defaultSelectionImageAssets: [PHAsset]){
         
+        for asset in self.selectedAssets{
+            if self.images.contains(asset) {
+                collectionView.deselectItem(at: IndexPath.init(row: self.images.index(of:asset), section: 0), animated: false)
+            }
+        }
+    
+        for asset in defaultSelectionImageAssets{
+            if self.images.contains(asset) {
+                collectionView.selectItem(at: IndexPath.init(row: self.images.index(of:asset), section: 0), animated: false, scrollPosition: UICollectionViewScrollPosition.centeredHorizontally)
+            }
+        }
+        delegate?.albumViewSelectDidChange(count: selectedAssets.count)
     }
     
     deinit {
@@ -438,7 +454,7 @@ internal extension IndexSet {
 
 private extension FSAlbumView {
     
-    func changeImage(_ asset: PHAsset) {
+    func changeImage(_ asset: PHAsset,setSelect isSetSelect:Bool = true) {
         
         self.imageCropView.image = nil
         self.phAsset = asset
@@ -461,7 +477,7 @@ private extension FSAlbumView {
                         self.imageCropView.image = result
                         
                         if let result = result,
-                            !self.selectedAssets.contains(asset) {
+                            !self.selectedAssets.contains(asset),isSetSelect == true {
                             
                             self.selectedAssets.append(asset)
                             self.selectedImages.append(result)

@@ -3,7 +3,6 @@
 //  Fusuma
 //
 //  Created by Yuta Akizuki on 2015/11/14.
-//  Copyright © 2015年 ytakzk. All rights reserved.
 //
 
 import UIKit
@@ -30,7 +29,9 @@ final class FSAlbumViewCell: UICollectionViewCell {
         
         selectedLayer.backgroundColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.5).cgColor
         
-        fusumaSelectImageCellLayerInitFunc?(selectedLayer)
+        selectedLayer.borderColor = fusumaTintColor.cgColor
+        selectedLayer.borderWidth = 2
+        
     }
     
     override var isSelected : Bool {

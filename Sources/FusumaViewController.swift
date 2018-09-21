@@ -118,8 +118,6 @@ public var fusumaTitleFont       = UIFont(name: "AvenirNext-DemiBold", size: 15)
 
 public var autoDismiss: Bool = true
 
-public var fusumaSelectImageCellLayerInitFunc: ((CALayer)->())?
-
 @objc public enum FusumaMode: Int {
     
     case camera
@@ -147,6 +145,7 @@ public struct ImageMetadata {
 
 @objc public class FusumaViewController: UIViewController {
 
+    public static var fusumaSelectImageCellLayerInitFunc: ((CALayer)->())?
     public var fusumaImageDecode:Bool = false
     
     public var cropHeightRatio: CGFloat = 1
@@ -172,7 +171,7 @@ public struct ImageMetadata {
     lazy var albumView  = FSAlbumView.instance()
     lazy var cameraView = FSCameraView.instance()
     lazy var videoView  = FSVideoCameraView.instance()
-
+    
     fileprivate var hasGalleryPermission: Bool {
         
         return PHPhotoLibrary.authorizationStatus() == .authorized
@@ -186,6 +185,10 @@ public struct ImageMetadata {
             
             self.view = view
         }
+    }
+    
+    public func refreshSelect(assets defaultSelectionImageAssets: [PHAsset]){
+        albumView.refreshSelect(assets: defaultSelectionImageAssets)
     }
     
     override public func viewDidLoad() {
