@@ -32,9 +32,8 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 
 public protocol FusumaDelegate: class {
-    
+
     func fusumaImageSelected(_ image: UIImage, source: FusumaMode)
-    func fusumaMultipleImageSelected(_ images: [UIImage], source: FusumaMode)
     func fusumaVideoCompleted(withFileURL fileURL: URL)
     func fusumaCameraRollUnauthorized()
     
@@ -43,9 +42,18 @@ public protocol FusumaDelegate: class {
     func fusumaDismissedWithImage(_ image: UIImage, source: FusumaMode)
     func fusumaClosed()
     func fusumaWillClosed()
+    
+    // optional
+    // fusumaImageDecode = true
+    func fusumaMultipleImageSelected(_ images: [UIImage], source: FusumaMode)
+    // fusumaImageDecode = false  default
+    func fusumaMultipleImagePHAssetSelected(_ imageAssets: [PHAsset], source: FusumaMode)
 }
 
 public extension FusumaDelegate {
+    
+    func fusumaMultipleImageSelected(_ images: [UIImage], source: FusumaMode){}
+    func fusumaMultipleImagePHAssetSelected(_ imageAssets: [PHAsset], source: FusumaMode){}
     
     func fusumaImageSelected(_ image: UIImage, source: FusumaMode, metaData: ImageMetadata) {}
     func fusumaDismissedWithImage(_ image: UIImage, source: FusumaMode) {}
@@ -71,12 +79,17 @@ public var fusumaCropImage: Bool  = true
 
 public var fusumaSavesImage: Bool = false
 
-public var fusumaCameraRollTitle = "Library"
-public var fusumaCameraTitle     = "Photo"
-public var fusumaVideoTitle      = "Video"
+public var fusumaCameraRollTitle = NSLocalizedString("Library", comment: "Library")
+public var fusumaCameraTitle     = NSLocalizedString("Photo",comment: "Photo")
+public var fusumaVideoTitle      = NSLocalizedString("Video",comment:"Video")
+public var fusumaCameraRollTitleSelect = NSLocalizedString("Selected",comment:"Selected")
 public var fusumaTitleFont       = UIFont(name: "AvenirNext-DemiBold", size: 15)
 
+
+
 public var autoDismiss: Bool = true
+
+public var fusumaSelectImageCellLayerInitFunc: ((CALayer)->())?
 
 @objc public enum FusumaMode: Int {
     
@@ -105,6 +118,8 @@ public struct ImageMetadata {
 
 @objc public class FusumaViewController: UIViewController {
 
+    public var fusumaImageDecode:Bool = false
+    
     public var cropHeightRatio: CGFloat = 1
     public var allowMultipleSelection: Bool = false
 
@@ -435,7 +450,7 @@ public struct ImageMetadata {
         }
     }
     
-    private func requestImage(with asset: PHAsset, cropRect: CGRect, completion: @escaping (PHAsset, UIImage) -> Void) {
+    public func requestImage(with asset: PHAsset, cropRect: CGRect, completion: @escaping (PHAsset, UIImage) -> Void) {
         
         DispatchQueue.global(qos: .default).async(execute: {
             
@@ -479,6 +494,13 @@ public struct ImageMetadata {
         let cropRect = CGRect(x: normalizedX, y: normalizedY,
                               width: normalizedWidth, height: normalizedHeight)
         
+        if !fusumaImageDecode {
+            self.doDismiss {
+                self.delegate?.fusumaMultipleImagePHAssetSelected(self.albumView.selectedAssets, source: self.mode)
+            }
+            return
+        }
+        
         var images = [UIImage]()
         
         for asset in albumView.selectedAssets {
@@ -497,9 +519,36 @@ public struct ImageMetadata {
             }
         }
     }
+    
+    public func requestImage(with asset: PHAsset, completion: @escaping (PHAsset, UIImage) -> Void) {
+        guard let view = albumView.imageCropView else { return }
+        
+        let normalizedX = view.contentOffset.x / view.contentSize.width
+        let normalizedY = view.contentOffset.y / view.contentSize.height
+        
+        let normalizedWidth  = view.frame.width / view.contentSize.width
+        let normalizedHeight = view.frame.height / view.contentSize.height
+        
+        let cropRect = CGRect(x: normalizedX, y: normalizedY,
+                              width: normalizedWidth, height: normalizedHeight)
+        
+        requestImage(with: asset, cropRect: cropRect, completion: completion)
+    }
+    
 }
 
 extension FusumaViewController: FSAlbumViewDelegate, FSCameraViewDelegate, FSVideoCameraViewDelegate {
+    
+    public func albumViewSelectDidChange(count: Int) {
+        
+        switch mode {
+            case .library:
+                titleLabel.text = fusumaCameraRollTitleSelect + " \(count)"
+            default:break
+            
+        }
+    }
+    
     
     public func getCropHeightRatio() -> CGFloat {
         
@@ -582,20 +631,20 @@ private extension FusumaViewController {
             
         case .library:
             
-            titleLabel.text = NSLocalizedString(fusumaCameraRollTitle, comment: fusumaCameraRollTitle)
+            titleLabel.text = fusumaCameraRollTitle
             highlightButton(libraryButton)
             self.view.bringSubview(toFront: photoLibraryViewerContainer)
         
         case .camera:
 
-            titleLabel.text = NSLocalizedString(fusumaCameraTitle, comment: fusumaCameraTitle)
+            titleLabel.text = fusumaCameraTitle
             highlightButton(cameraButton)
             self.view.bringSubview(toFront: cameraShotContainer)
             cameraView.startCamera()
             
         case .video:
             
-            titleLabel.text = NSLocalizedString(fusumaVideoTitle, comment: fusumaVideoTitle)
+            titleLabel.text = fusumaVideoTitle
             highlightButton(videoButton)
             self.view.bringSubview(toFront: videoShotContainer)
             videoView.startCamera()

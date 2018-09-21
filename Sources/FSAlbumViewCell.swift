@@ -29,6 +29,8 @@ final class FSAlbumViewCell: UICollectionViewCell {
         self.isSelected = false
         
         selectedLayer.backgroundColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.5).cgColor
+        
+        fusumaSelectImageCellLayerInitFunc?(selectedLayer)
     }
     
     override var isSelected : Bool {

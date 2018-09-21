@@ -15,6 +15,8 @@ public protocol FSAlbumViewDelegate: class {
 
     func albumViewCameraRollUnauthorized()
     func albumViewCameraRollAuthorized()
+    
+    func albumViewSelectDidChange(count:Int)
 }
 
 final class FSAlbumView: UIView, UICollectionViewDataSource, UICollectionViewDelegate, PHPhotoLibraryChangeObserver, UIGestureRecognizerDelegate {
@@ -332,6 +334,8 @@ final class FSAlbumView: UIView, UICollectionViewDataSource, UICollectionViewDel
             selectedAssets.remove(at: selected.offset)
         }
         
+        self.delegate?.albumViewSelectDidChange(count: self.selectedAssets.count)
+        
         return true
     }
     
@@ -462,6 +466,8 @@ private extension FSAlbumView {
                             self.selectedAssets.append(asset)
                             self.selectedImages.append(result)
                         }
+                        
+                        self.delegate?.albumViewSelectDidChange(count: self.selectedAssets.count)
                     })
             }
         })

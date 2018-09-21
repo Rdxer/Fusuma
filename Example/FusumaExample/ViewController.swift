@@ -7,8 +7,12 @@
 //
 
 import UIKit
+import Photos
 
-class ViewController: UIViewController, FusumaDelegate {
+
+
+class ViewController: UIViewController, FusumaDelegate
+{
     
     @IBOutlet weak var imageView: UIImageView!
     
@@ -21,6 +25,11 @@ class ViewController: UIViewController, FusumaDelegate {
         
         showButton.layer.cornerRadius = 2.0
         self.fileUrlLabel.text = ""
+        
+        fusumaSelectImageCellLayerInitFunc = {
+            $0.borderWidth = 2
+            $0.borderColor = UIColor.blue.cgColor
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -33,10 +42,12 @@ class ViewController: UIViewController, FusumaDelegate {
         // Dispose of any resources that can be recreated.
     }
     
+    let fusuma = FusumaViewController()
+    
     @IBAction func showButtonPressed(_ sender: AnyObject) {
         
         // Show Fusuma
-        let fusuma = FusumaViewController()
+        
         
         fusuma.delegate = self
         fusuma.cropHeightRatio = 1.0
@@ -67,7 +78,19 @@ class ViewController: UIViewController, FusumaDelegate {
         
         imageView.image = image
     }
-    
+    func fusumaMultipleImagePHAssetSelected(_ imageAssets: [PHAsset], source: FusumaMode) {
+        print("Number of selection images: \(imageAssets.count)")
+        var count: Double = 0
+        
+        for asset in imageAssets {
+            DispatchQueue.main.asyncAfter(deadline: .now() + (3.0 * count)) {
+                self.fusuma.requestImage(with: asset, completion: { (asset, img) in
+                    self.imageView.image = img
+                })
+            }
+            count += 1
+        }
+    }
     func fusumaMultipleImageSelected(_ images: [UIImage], source: FusumaMode) {
         
         print("Number of selection images: \(images.count)")
