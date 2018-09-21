@@ -148,11 +148,11 @@ class ViewController: UIViewController, FusumaDelegate
         
         print("Camera roll unauthorized")
         
-        let alert = UIAlertController(title: "Access Requested",
-                                      message: "Saving image needs to access your photo album",
+        let alert = UIAlertController(title: NSLocalizedString("Access Requested", comment: ""),
+                                      message: NSLocalizedString("Saving image needs to access your photo album",comment:""),
                                       preferredStyle: .alert)
         
-        alert.addAction(UIAlertAction(title: "Settings", style: .default) { (action) -> Void in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Settings",comment:""), style: .default) { (action) -> Void in
             
             if let url = URL(string:UIApplicationOpenSettingsURLString) {
                 
@@ -160,7 +160,7 @@ class ViewController: UIViewController, FusumaDelegate
             }
         })
         
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel",comment:""), style: .cancel) { (action) -> Void in
             
         })
 
