@@ -45,14 +45,11 @@ class ViewController: UIViewController, FusumaDelegate
     let fusuma = FusumaViewController()
     
     @IBAction func showButtonPressed(_ sender: AnyObject) {
-        
-        // Show Fusuma
-        
+
         
         fusuma.delegate = self
         fusuma.cropHeightRatio = 1.0
         fusuma.allowMultipleSelection = true
-//        fusuma.availableModes = [.video]
         fusumaSavesImage = true
 
         self.present(fusuma, animated: true, completion: nil)
@@ -143,45 +140,5 @@ class ViewController: UIViewController, FusumaDelegate
             print("Called just after dismissed FusumaViewController")
         }
     }
-    
-    func fusumaCameraRollUnauthorized() {
-        
-        print("Camera roll unauthorized")
-        
-        let alert = UIAlertController(title: NSLocalizedString("Access Requested", comment: ""),
-                                      message: NSLocalizedString("Saving image needs to access your photo album",comment:""),
-                                      preferredStyle: .alert)
-        
-        alert.addAction(UIAlertAction(title: NSLocalizedString("Settings",comment:""), style: .default) { (action) -> Void in
-            
-            if let url = URL(string:UIApplicationOpenSettingsURLString) {
-                
-                UIApplication.shared.openURL(url)
-            }
-        })
-        
-        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel",comment:""), style: .cancel) { (action) -> Void in
-            
-        })
-
-        guard let vc = UIApplication.shared.delegate?.window??.rootViewController,
-            let presented = vc.presentedViewController else {
-            
-            return
-        }
-        
-        presented.present(alert, animated: true, completion: nil)
-    }
-    
-    func fusumaClosed() {
-        
-        print("Called when the FusumaViewController disappeared")
-    }
-    
-    func fusumaWillClosed() {
-        
-        print("Called when the close button is pressed")
-    }
-
 }
 
