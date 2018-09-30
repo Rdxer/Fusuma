@@ -187,8 +187,8 @@ public struct ImageMetadata {
         }
     }
     
-    public func refreshSelect(assets defaultSelectionImageAssets: [PHAsset]){
-        albumView.refreshSelect(assets: defaultSelectionImageAssets)
+    public func refreshSelect(assets defaultSelectionImageAssets: [PHAsset],showAsset:PHAsset? = nil){
+        albumView.refreshSelect(assets: defaultSelectionImageAssets,showAsset: showAsset)
     }
     
     override public func viewDidLoad() {
@@ -566,7 +566,7 @@ public struct ImageMetadata {
         
         requestImage(with: asset, cropRect: cropRect, completion: completion)
     }
-    
+
 }
 
 extension FusumaViewController: FSAlbumViewDelegate, FSCameraViewDelegate, FSVideoCameraViewDelegate {
@@ -575,7 +575,11 @@ extension FusumaViewController: FSAlbumViewDelegate, FSCameraViewDelegate, FSVid
         
         switch mode {
             case .library:
-                titleLabel.text = fusumaCameraRollTitleSelect + " \(count)"
+                if allowMultipleSelection {
+                    titleLabel.text = fusumaCameraRollTitleSelect + " \(count)"
+                }else{
+                    titleLabel.text = fusumaCameraRollTitle
+                }
             default:break
             
         }

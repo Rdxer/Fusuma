@@ -123,9 +123,13 @@ final class FSAlbumView: UIView, UICollectionViewDataSource, UICollectionViewDel
         PHPhotoLibrary.shared().register(self)
     }
     
-    func refreshSelect(assets defaultSelectionImageAssets: [PHAsset]){
+    func refreshSelect(assets defaultSelectionImageAssets: [PHAsset],showAsset:PHAsset? = nil){
         
-        for asset in self.selectedAssets{
+        let temp = self.selectedAssets
+        self.selectedAssets = []
+        self.selectedImages = []
+        
+        for asset in temp{
             if self.images.contains(asset) {
                 collectionView.deselectItem(at: IndexPath.init(row: self.images.index(of:asset), section: 0), animated: false)
             }
@@ -134,8 +138,19 @@ final class FSAlbumView: UIView, UICollectionViewDataSource, UICollectionViewDel
         for asset in defaultSelectionImageAssets{
             if self.images.contains(asset) {
                 collectionView.selectItem(at: IndexPath.init(row: self.images.index(of:asset), section: 0), animated: false, scrollPosition: UICollectionViewScrollPosition.centeredHorizontally)
+                self.selectedAssets.append(asset)
+            
             }
         }
+        
+        if let showAsset = showAsset {
+            if self.images.contains(showAsset) {
+                let index = self.images.index(of: showAsset)
+                collectionView.scrollToItem(at: IndexPath.init(item: index, section: 0), at: UICollectionViewScrollPosition.centeredVertically, animated: true)
+            }
+            changeImage(showAsset)
+        }
+        
         delegate?.albumViewSelectDidChange(count: selectedAssets.count)
     }
     
